@@ -143,7 +143,7 @@ describe("ERC247", function () {
 
         const events = await contract.queryFilter('Post');
         const post = events[0].args;
-        const [nftContract, tokenId, channel, content, profileId] = post;
+        const [nftContract, tokenId, channel, content, profileId, postId] = post;
 
         const address = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512';
         let encodePacked =  ethers.concat([
@@ -154,7 +154,7 @@ describe("ERC247", function () {
         const testProfileId = ethers.keccak256(encodePacked);
         // console.log('testProfileId: ',testProfileId);
         const baseURI = await contract.baseURI();
-        console.log('baseURI: ',baseURI);
+        // console.log('baseURI: ',baseURI);
         const profileIdCheck = await contract.profileId(address,1);
         // console.log('profileIdCheck: ',profileIdCheck);
         const uri = await contract.uri();
@@ -164,6 +164,8 @@ describe("ERC247", function () {
         expect(profileIdCheck).to.equal(profileId);
         expect(baseURI).to.equal("https://www.erc-247.com/");
         expect(uri).to.equal("https://www.erc-247.com/{profileId}.json");
+        expect(postId).to.equal("0xa16caf0aa568908428dc5b0a22b2c098a8289d8b5f2baa987c803fa7fb94085a");
+        console.log('postId: ',postId);
     });
   });
 });
