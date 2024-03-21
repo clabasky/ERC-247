@@ -140,10 +140,11 @@ describe("ERC247", function () {
 
   describe("Reading", function () {
     it("Should let me read posts", async function () {
-
         const events = await contract.queryFilter('Post');
+
+        const txHash = events[0].transactionHash;
         const post = events[0].args;
-        const [nftContract, tokenId, channel, content, profileId, postId] = post;
+        const [nftContract, tokenId, channel, content, profileId] = post;
 
         const address = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512';
         let encodePacked =  ethers.concat([
@@ -164,8 +165,27 @@ describe("ERC247", function () {
         expect(profileIdCheck).to.equal(profileId);
         expect(baseURI).to.equal("https://www.erc-247.com/");
         expect(uri).to.equal("https://www.erc-247.com/{profileId}.json");
-        expect(postId).to.equal("0xa16caf0aa568908428dc5b0a22b2c098a8289d8b5f2baa987c803fa7fb94085a");
-        console.log('postId: ',postId);
+        console.log('txHash: ',txHash);
     });
   });
+
+  describe("Reply", function(){
+      it("Should let me reply to a post", async function(){
+          const accounts = await ethers.getSigners();
+          const account2 = accounts[1];
+          const contract2 = contract.connect(account2);
+
+          const nftContract = await test721.getAddress();
+          const tokenId = '2';
+          const channel = "0xd8d76649ff59928f55434ee509c44a41f88c0baf14d14a3810add3dca910bc2b";
+          const postData = '{"m":"reply to some previous post"}';
+
+          const txData = await contract2.createPost(nftContract,tokenId,channel,postData);
+          const receipt = await txData.wait();
+          const log = receipt.logs[0];
+          // console.log('receipt: ',log);
+          expect(log.fragment.name).to.equal("Post");
+          expect(log.args[3]).to.equal(postData);
+      })
+  })
 });
